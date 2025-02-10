@@ -5,19 +5,16 @@ import numpy as np
 from PIL import Image
 import os
 
-# Define folder paths
-xml_folder = "data/groundTruth"        # Folder containing XML files
-image_folder = "data/images"             # Folder containing image files
-output_image_folder = "datasetProcessed/cropped_textlines/images"  # Folder for cropped text lines
-output_json_folder = "datasetProcessed/labels"  # Folder for JSON label outputs
-highlighted_folder = "datasetProcessed"  # Folder to save full images with drawn bounding boxes
+xml_folder = "data/groundTruth"       
+image_folder = "data/images"          
+output_image_folder = "datasetProcessed/cropped_textlines/images" 
+output_json_folder = "datasetProcessed/labels" 
+highlighted_folder = "datasetProcessed" 
 
-# Create output directories if they don't exist
 os.makedirs(output_image_folder, exist_ok=True)
 os.makedirs(output_json_folder, exist_ok=True)
 os.makedirs(highlighted_folder, exist_ok=True)
 
-# Padding around the text line bounding boxes
 padding = 25
 
 def process_image(image_name):
@@ -29,16 +26,12 @@ def process_image(image_name):
     xml_path = os.path.join(xml_folder, image_name + ".xml")
     image_path = os.path.join(image_folder, image_name + ".jpg")
     
-    # Parse the XML file using ElementTree and define the ALTO namespace
     tree = ET.parse(xml_path)
     root = tree.getroot()
     namespace = {'ns': 'http://www.loc.gov/standards/alto/ns-v4#'}
 
-    # Open the image and convert it to RGB (if not already)
     image = Image.open(image_path).convert("RGB")
     image_cv = np.array(image)
-    
-    # Get page dimensions from the XML and resize the image if necessary
     page_elem = root.find(".//ns:Page", namespace)
     page_width = int(page_elem.get("WIDTH"))
     page_height = int(page_elem.get("HEIGHT"))
@@ -49,7 +42,7 @@ def process_image(image_name):
     image_original = image_cv.copy()
     
     textline_counter = 1
-    labels = []  # This list will hold the metadata for each text line
+    labels = [] 
 
     def draw_bounding_boxes(image, hpos, vpos, width, baseline_points, padding,
                             color=(0, 255, 0), thickness=2):
@@ -58,13 +51,11 @@ def process_image(image_name):
         draw it on the image, and return the bounding box coordinates.
         """
         if baseline_points:
-            # Get min and max coordinates from the baseline points
             min_x = min(x for x, _ in baseline_points)
             max_x = max(x for x, _ in baseline_points)
             min_y = min(y for _, y in baseline_points)
             max_y = max(y for _, y in baseline_points)
 
-            # Use the provided HPOS and WIDTH as additional constraints
             new_hpos = min(hpos, min_x)
             new_width = max(width, max_x - min_x)
 
@@ -87,16 +78,13 @@ def process_image(image_name):
         baseline_attr = textline.get("BASELINE")
 
         if baseline_attr:
-            # Convert the baseline attribute string into a list of integers
             baseline_values = list(map(int, baseline_attr.split()))
             if len(baseline_values) % 2 == 0:
-                # Group the values into (x, y) tuples
                 baseline_points = [
                     (baseline_values[i], baseline_values[i+1])
                     for i in range(0, len(baseline_values), 2)
                 ]
 
-                # Draw the bounding box on the image and get its coordinates
                 bbox = draw_bounding_boxes(image_cv, hpos, vpos, width, baseline_points, padding)
                 if bbox is None:
                     print(f"Skipping text line {textline_counter} due to invalid bounding box.")
@@ -104,7 +92,6 @@ def process_image(image_name):
                     continue
                 x1, y1, x2, y2 = bbox
 
-                # Crop the text line region using the computed bounding box
                 cropped_line = image_original[y1:y2, x1:x2]
                 if cropped_line.size == 0:
                     print(f"Skipping text line {textline_counter} due to invalid cropped image.")
