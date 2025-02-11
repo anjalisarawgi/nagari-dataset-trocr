@@ -6,3 +6,5 @@ trocr-nagari-finetune/
 *.png
 *.jpg
 wandb/
+oldNepaliData/
+oldNepaliDataProcessed/
