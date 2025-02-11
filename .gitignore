@@ -2,3 +2,7 @@ rawData/
 data/
 datasetProcessed/
 data.zip
+trocr-nagari-finetune/
+*.png
+*.jpg
+wandb/
