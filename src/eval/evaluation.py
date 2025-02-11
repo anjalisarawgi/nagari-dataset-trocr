@@ -3,6 +3,7 @@ import argparse
 import torch
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from PIL import Image
+import os
 
 def main(args):
     model_dir = args.model_dir
@@ -15,7 +16,13 @@ def main(args):
     pixel_values = processor(images=image, return_tensors="pt").pixel_values.to(device)
     generated_ids = model.generate(pixel_values)
     predicted_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-    
+    image_filename = os.path.basename(args.image_path)
+
+    output_file = f"results/trocr_nagari_finetuned/{image_filename}.txt"
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(predicted_text + "\n")
+
+    print(f"Predicted text saved to {output_file}")
     print("Predicted Text:", predicted_text)
 
 if __name__ == "__main__":
@@ -34,3 +41,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     main(args)
+
+    # save as txt

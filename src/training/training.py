@@ -65,7 +65,7 @@ training_args = Seq2SeqTrainingArguments(
     save_steps=500,
     logging_steps=100,
     warmup_steps=500,
-    num_train_epochs=20, 
+    num_train_epochs=10, 
     learning_rate=3e-5,
     weight_decay=0.01,
     predict_with_generate=True,
@@ -130,7 +130,6 @@ trainer = Seq2SeqTrainer(
     tokenizer=processor.feature_extractor,  
     compute_metrics = compute_metrics,
     eval_dataset=eval_dataset,
-    callbacks = [EarlyStoppingCallback(early_stopping_patience=3)],
 )
 
 
