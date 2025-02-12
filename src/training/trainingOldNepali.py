@@ -13,20 +13,20 @@ from torchvision.utils import save_image
 set_seed(42) 
 
 wandb.init(
-    project="Nepali-OCR-Finetuning", 
+    project="oldNepali-OCR-Finetuning", 
     name="trocr-nepali-run", 
 )
 
 processor = TrOCRProcessor.from_pretrained("microsoft/trocr-large-handwritten")
-model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-large-handwritten") # encoder-decoder model
-dataset = load_dataset("json", data_files={"train": "datasetProcessed/labels/labels.json"})
+model = VisionEncoderDecoderModel.from_pretrained("trocr-nagari-finetune") # encoder-decoder model
+dataset = load_dataset("json", data_files={"train": "oldNepaliDataProcessed/labels/labels.json"})
 train_dataset = dataset["train"]
 # train_dataset = train_dataset.select(range(100))
 
 
-image = Image.open("test_a.png").convert("RGB")
-pixel_values = processor(images=image, return_tensors="pt").pixel_values[0]  
-save_image(pixel_values, "processed_image.png")
+# image = Image.open("test_a.png").convert("RGB")
+# pixel_values = processor(images=image, return_tensors="pt").pixel_values[0]  
+# save_image(pixel_values, "processed_image.png")
 
 # split 
 split_dataset = train_dataset.train_test_split(test_size=0.1, seed=42)
@@ -56,17 +56,17 @@ eval_dataset = test_dataset.map(process_data, remove_columns=test_dataset.column
 eval_dataset.set_format(type="torch", columns=["pixel_values", "labels"])
 
 training_args = Seq2SeqTrainingArguments(
-    output_dir="./trocr-nagari-finetune",
-    per_device_train_batch_size=4,
-    per_device_eval_batch_size=4,
+    output_dir="./trocr-nagari-oldNepali-finetune",
+    per_device_train_batch_size=2,
+    per_device_eval_batch_size=2,
     evaluation_strategy="steps",
-    eval_steps = 1000,
+    eval_steps = 400,
     save_strategy="steps",
-    save_steps=500,
-    logging_steps=100,
-    warmup_steps=500,
-    num_train_epochs=10, 
-    learning_rate=3e-5,
+    save_steps=1000,
+    logging_steps=50,
+    warmup_steps=200,
+    num_train_epochs=6, 
+    learning_rate=1e-5,
     weight_decay=0.01,
     predict_with_generate=True,
     fp16=torch.cuda.is_available(),
@@ -96,7 +96,6 @@ data_collator = ImageToTextCollator(tokenizer=processor.tokenizer)
 
 
 
-from jiwer import wer, cer
 
 def compute_metrics(pred):
     pred_ids = pred.predictions
@@ -135,8 +134,8 @@ trainer = Seq2SeqTrainer(
 
 
 trainer.train()
-trainer.save_model("./trocr-nagari-finetune")
-processor.save_pretrained("./trocr-nagari-finetune")
+trainer.save_model("./trocr-nagari-oldNepali-finetune")
+processor.save_pretrained("./trocr-nagari-oldNepali-finetune")
 
 wandb.finish()
 

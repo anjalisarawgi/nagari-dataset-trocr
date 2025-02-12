@@ -8,3 +8,4 @@ trocr-nagari-finetune/
 wandb/
 oldNepaliData/
 oldNepaliDataProcessed/
+trocr-nagari-oldNepali-finetune/
