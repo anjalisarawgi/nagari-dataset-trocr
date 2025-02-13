@@ -3,9 +3,8 @@ data/
 datasetProcessed/
 data.zip
 trocr-nagari-finetune/
-*.png
-*.jpg
 wandb/
 oldNepaliData/
 oldNepaliDataProcessed/
-trocr-nagari-oldNepali-finetune/
+trocr-nagari-oldNepali-finetune*/
+misc/

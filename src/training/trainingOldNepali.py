@@ -56,17 +56,17 @@ eval_dataset = test_dataset.map(process_data, remove_columns=test_dataset.column
 eval_dataset.set_format(type="torch", columns=["pixel_values", "labels"])
 
 training_args = Seq2SeqTrainingArguments(
-    output_dir="./trocr-nagari-oldNepali-finetune",
+    output_dir="./trocr-nagari-oldNepali-finetune-4",
     per_device_train_batch_size=2,
     per_device_eval_batch_size=2,
     evaluation_strategy="steps",
     eval_steps = 400,
     save_strategy="steps",
     save_steps=1000,
-    logging_steps=50,
+    logging_steps=100,
     warmup_steps=200,
-    num_train_epochs=6, 
-    learning_rate=1e-5,
+    num_train_epochs=30, 
+    learning_rate=3e-5,
     weight_decay=0.01,
     predict_with_generate=True,
     fp16=torch.cuda.is_available(),
@@ -134,8 +134,8 @@ trainer = Seq2SeqTrainer(
 
 
 trainer.train()
-trainer.save_model("./trocr-nagari-oldNepali-finetune")
-processor.save_pretrained("./trocr-nagari-oldNepali-finetune")
+trainer.save_model("./trocr-nagari-oldNepali-finetune-4")
+processor.save_pretrained("./trocr-nagari-oldNepali-finetune-4")
 
 wandb.finish()
 
