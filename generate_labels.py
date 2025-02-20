@@ -7,6 +7,7 @@ NAMESPACE = {'alto': "http://www.loc.gov/standards/alto/ns-v4#"}
 
 # Directory containing ALTO XML files
 xml_dir = "data/groundTruth"
+image_prefix = "data/images/"
 labels = {}
 
 # Process each XML file
@@ -26,13 +27,15 @@ for file in os.listdir(xml_dir):
             print(f"Warning: Missing fileName in {file}")
             file_name = file.replace(".xml", ".jpg")  # Fallback: assume filename
 
+        image_path = os.path.join(image_prefix, file_name)
+
         # Extract text content
         text_lines = root.findall(".//alto:String", NAMESPACE)
         full_text = " ".join([t.attrib.get("CONTENT", "") for t in text_lines]).strip()
 
         # Ensure we store valid mappings
         if file_name and full_text:
-            labels[file_name] = full_text
+            labels[image_path] = full_text
         else:
             print(f"Skipping {file} due to missing data.")
 
