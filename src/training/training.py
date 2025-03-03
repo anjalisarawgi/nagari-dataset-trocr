@@ -19,10 +19,14 @@ wandb.init(
 
 processor = TrOCRProcessor.from_pretrained("microsoft/trocr-large-handwritten")
 model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-large-handwritten") # encoder-decoder model
-dataset = load_dataset("json", data_files={"train": "data/groundTruth/labels.json"})
+dataset = load_dataset("json", data_files={"train": "datasetProcessed/labels/labels.json"})
 train_dataset = dataset["train"]
 # train_dataset = train_dataset.select(range(100))
 
+
+image = Image.open("test_a.png").convert("RGB")
+pixel_values = processor(images=image, return_tensors="pt").pixel_values[0]  
+save_image(pixel_values, "processed_image.png")
 
 # split 
 split_dataset = train_dataset.train_test_split(test_size=0.1, seed=42)
@@ -52,7 +56,7 @@ eval_dataset = test_dataset.map(process_data, remove_columns=test_dataset.column
 eval_dataset.set_format(type="torch", columns=["pixel_values", "labels"])
 
 training_args = Seq2SeqTrainingArguments(
-    output_dir="./trocr-nagari-finetune-full",
+    output_dir="./trocr-nagari-finetune",
     per_device_train_batch_size=4,
     per_device_eval_batch_size=4,
     evaluation_strategy="steps",
@@ -131,8 +135,8 @@ trainer = Seq2SeqTrainer(
 
 
 trainer.train()
-trainer.save_model("./trocr-nagari-finetune-full")
-processor.save_pretrained("./trocr-nagari-finetune-full")
+trainer.save_model("./trocr-nagari-finetune")
+processor.save_pretrained("./trocr-nagari-finetune")
 
 wandb.finish()
 
