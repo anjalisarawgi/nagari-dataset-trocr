@@ -14,12 +14,12 @@ set_seed(42)
 
 wandb.init(
     project="oldNepali-OCR-Finetuning", 
-    name="oldNepali-nepali-run", 
+    name="trocr-nepali-run", 
 )
 
 processor = TrOCRProcessor.from_pretrained("microsoft/trocr-large-handwritten")
-model = VisionEncoderDecoderModel.from_pretrained("trocr-nagari-IIT_HW-finetune") # encoder-decoder model --- trocr-nagari-finetune
-dataset = load_dataset("json", data_files={"train": "oldNepaliDataProcessed/labels/labels.json"})
+model = VisionEncoderDecoderModel.from_pretrained("trocr-nagari-finetune") 
+dataset = load_dataset("json", data_files={"train": "IIT_HW_Hindi_V1Processed/labels_updated.json"})
 train_dataset = dataset["train"]
 # train_dataset = train_dataset.select(range(100))
 
@@ -56,16 +56,16 @@ eval_dataset = test_dataset.map(process_data, remove_columns=test_dataset.column
 eval_dataset.set_format(type="torch", columns=["pixel_values", "labels"])
 
 training_args = Seq2SeqTrainingArguments(
-    output_dir="./trocr-nagari-IIT_HW-oldNepali-finetune-2",
+    output_dir="./trocr-nagari-IIT_HW-finetune",
     per_device_train_batch_size=2,
     per_device_eval_batch_size=2,
     evaluation_strategy="steps",
-    eval_steps = 400,
+    eval_steps = 1000,
     save_strategy="steps",
-    save_steps=1000,
+    save_steps=2500,
     logging_steps=100,
-    warmup_steps=200,
-    num_train_epochs=15, 
+    warmup_steps=500,
+    num_train_epochs=10, 
     learning_rate=3e-5,
     weight_decay=0.01,
     predict_with_generate=True,
@@ -134,12 +134,8 @@ trainer = Seq2SeqTrainer(
 
 
 trainer.train()
-trainer.save_model("./trocr-nagari-oldNepali-finetune-5")
-processor.save_pretrained("./trocr-nagari-oldNepali-finetune-5")
+trainer.save_model("./trocr-nagari-IIT_HW-finetune")
+processor.save_pretrained("./trocr-nagari-IIT_HW-finetune")
 
 wandb.finish()
 
-
-
-# trocr-nagari-oldNepali-finetune-5 : 20 epochs, 2e-5 lr
-# trocr-nagari-IIT_HW-oldNepali-finetune-2 : 15 epochs, 3e-5 lr
