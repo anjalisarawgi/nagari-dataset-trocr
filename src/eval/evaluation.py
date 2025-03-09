@@ -18,7 +18,7 @@ def main(args):
     predicted_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
     image_filename = os.path.basename(args.image_path)
 
-    output_file = f"results/trocr_nagari_oldNepalinew_finetuned/{image_filename}.txt"
+    output_file = f"results/trocr_nagari_IIT_HW_oldNepalinew_finetuned/{image_filename}.txt"
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(predicted_text + "\n")
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_dir",
         type=str,
-        default="./trocr-nagari-oldNepalinew-finetune",
+        default="./trocr-nagari-IIT_HW-oldNepalinew-finetune",
         help="Directory where the saved model and processor are located",
     )
     parser.add_argument(
